@@ -1,15 +1,29 @@
 package main
 
-import (
-	"fmt"
-	"net/http"
-)
+import "os"
 
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080", nil)
+	a := App{}
+	a.Initialize(
+		os.Getenv("APP_DB_USERNAME"),
+		os.Getenv("APP_DB_PASSWORD"),
+		os.Getenv("APP_DB_NAME"))
+
+	a.Run(":8080")
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "PEC")
-}
+// package main
+//
+// import (
+// 	"fmt"
+// 	"net/http"
+// )
+//
+// func main() {
+// 	http.HandleFunc("/", handler)
+// 	http.ListenAndServe(":8080", nil)
+// }
+//
+// func handler(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Fprintf(w, "PEC")
+// }
