@@ -156,6 +156,7 @@ func (a *App) initializeRoutes() {
 	diseaseController := controllers.DiseaseController{DB: a.DB}
 	patientController := controllers.PatientController{DB: a.DB}
 	medicalRecordController := controllers.MedicalRecordController{DB: a.DB}
+	occupationController := controllers.OccupationController{DB: a.DB}
 	a.Router.HandleFunc("/diseases", diseaseController.CreateDisease).Methods("POST")
 	a.Router.HandleFunc("/diseases", diseaseController.FindDiseases).Methods("GET")
 	a.Router.HandleFunc("/diseases/{code:\\w+}", diseaseController.FindDisease).Methods("GET")
@@ -173,6 +174,12 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/medicalrecords/{code:\\w+}", medicalRecordController.FindMedicalRecord).Methods("GET")
 	a.Router.HandleFunc("/medicalrecords/{code:\\w+}", medicalRecordController.UpdateMedicalRecord).Methods("PUT")
 	a.Router.HandleFunc("/medicalrecords/{code:\\w+}", medicalRecordController.DeleteMedicalRecord).Methods("DELETE")
+
+	a.Router.HandleFunc("/occupations", occupationController.CreateOccupation).Methods("POST")
+	a.Router.HandleFunc("/occupations", occupationController.FindOccupations).Methods("GET")
+	a.Router.HandleFunc("/occupations/{code:\\w+}", occupationController.FindOccupation).Methods("GET")
+	a.Router.HandleFunc("/occupations/{code:\\w+}", occupationController.UpdateOccupation).Methods("PUT")
+	a.Router.HandleFunc("/occupations/{code:\\w+}", occupationController.DeleteOccupation).Methods("DELETE")
 }
 
 func (a *App) Run(addr string) {
