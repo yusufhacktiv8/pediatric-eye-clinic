@@ -177,9 +177,11 @@ func (d *Patient) Update(db *sql.DB) error {
 				father_occupation=$7,
 				mother_occupation=$8,
 				referral_origin=$9,
-				insurance=$10,
+				insurance=$10
 			WHERE
 				code=$11`,
+			d.Code,
+			d.Name,
 			d.DateOfBirth,
 			d.Address,
 			d.FatherName,
