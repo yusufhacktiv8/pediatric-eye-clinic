@@ -51,8 +51,9 @@ func (d *Disease) Update(db *sql.DB) error {
 	return err
 }
 
-func (d *Disease) deleteDisease(db *sql.DB) error {
-	_, err := db.Exec("DELETE FROM diseases WHERE id=$1", d.ID)
+// Delete disease
+func (d *Disease) Delete(db *sql.DB) error {
+	_, err := db.Exec("DELETE FROM diseases WHERE code=$1", d.Code)
 
 	return err
 }

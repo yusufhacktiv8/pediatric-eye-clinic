@@ -87,3 +87,17 @@ func (a *DiseaseController) UpdateDisease(w http.ResponseWriter, r *http.Request
 
 	respondWithJSON(w, http.StatusOK, disease)
 }
+
+// DeleteDisease delete disease
+func (a *DiseaseController) DeleteDisease(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	code := vars["code"]
+
+	disease := models.Disease{Code: code}
+	if err := disease.Delete(a.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+}

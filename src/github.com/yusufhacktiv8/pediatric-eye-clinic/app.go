@@ -157,6 +157,7 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/diseases", diseaseController.FindDiseases).Methods("GET")
 	a.Router.HandleFunc("/diseases/{code:\\w+}", diseaseController.FindDisease).Methods("GET")
 	a.Router.HandleFunc("/diseases/{code:\\w+}", diseaseController.UpdateDisease).Methods("PUT")
+	a.Router.HandleFunc("/diseases/{code:\\w+}", diseaseController.DeleteDisease).Methods("DELETE")
 }
 
 func (a *App) Run(addr string) {
