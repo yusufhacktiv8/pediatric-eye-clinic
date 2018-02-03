@@ -36,15 +36,17 @@ func FindDiseases(db *sql.DB, start, count int) ([]Disease, error) {
 	return diseases, nil
 }
 
-func (d *Disease) getDisease(db *sql.DB) error {
+// FindOne to find one disease based on code
+func (d *Disease) FindOne(db *sql.DB) error {
 	return db.QueryRow("SELECT code, name FROM diseases WHERE code=$1",
-		d.ID).Scan(&d.Code, &d.Name)
+		d.Code).Scan(&d.Code, &d.Name)
 }
 
-func (d *Disease) updateDisease(db *sql.DB) error {
+// Update disease
+func (d *Disease) Update(db *sql.DB) error {
 	_, err :=
-		db.Exec("UPDATE diseases SET code=$1, name=$2 WHERE id=$3",
-			d.Code, d.Name, d.ID)
+		db.Exec("UPDATE diseases SET code=$1, name=$2 WHERE code=$3",
+			d.Code, d.Name, d.Code)
 
 	return err
 }
