@@ -157,6 +157,7 @@ func (a *App) initializeRoutes() {
 	patientController := controllers.PatientController{DB: a.DB}
 	medicalRecordController := controllers.MedicalRecordController{DB: a.DB}
 	occupationController := controllers.OccupationController{DB: a.DB}
+	insuranceController := controllers.InsuranceController{DB: a.DB}
 	a.Router.HandleFunc("/diseases", diseaseController.CreateDisease).Methods("POST")
 	a.Router.HandleFunc("/diseases", diseaseController.FindDiseases).Methods("GET")
 	a.Router.HandleFunc("/diseases/{code:\\w+}", diseaseController.FindDisease).Methods("GET")
@@ -180,6 +181,12 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/occupations/{code:\\w+}", occupationController.FindOccupation).Methods("GET")
 	a.Router.HandleFunc("/occupations/{code:\\w+}", occupationController.UpdateOccupation).Methods("PUT")
 	a.Router.HandleFunc("/occupations/{code:\\w+}", occupationController.DeleteOccupation).Methods("DELETE")
+
+	a.Router.HandleFunc("/insurances", insuranceController.CreateInsurance).Methods("POST")
+	a.Router.HandleFunc("/insurances", insuranceController.FindInsurances).Methods("GET")
+	a.Router.HandleFunc("/insurances/{code:\\w+}", insuranceController.FindInsurance).Methods("GET")
+	a.Router.HandleFunc("/insurances/{code:\\w+}", insuranceController.UpdateInsurance).Methods("PUT")
+	a.Router.HandleFunc("/insurances/{code:\\w+}", insuranceController.DeleteInsurance).Methods("DELETE")
 }
 
 func (a *App) Run(addr string) {
