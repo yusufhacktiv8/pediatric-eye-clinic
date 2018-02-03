@@ -67,6 +67,7 @@ func (a *DiseaseController) FindDisease(w http.ResponseWriter, r *http.Request) 
 	respondWithJSON(w, http.StatusOK, disease)
 }
 
+// UpdateDisease update disease
 func (a *DiseaseController) UpdateDisease(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	code := vars["code"]
