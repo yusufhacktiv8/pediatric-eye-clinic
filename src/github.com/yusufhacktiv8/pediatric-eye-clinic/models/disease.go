@@ -58,9 +58,10 @@ func (d *Disease) Delete(db *sql.DB) error {
 	return err
 }
 
-func (d *Disease) createDisease(db *sql.DB) error {
+// Create disease
+func (d *Disease) Create(db *sql.DB) error {
 	err := db.QueryRow(
-		"INSERT INTO diseases(name, price) VALUES($1, $2) RETURNING id",
+		"INSERT INTO diseases(code, name) VALUES($1, $2) RETURNING id",
 		d.Code, d.Name).Scan(&d.ID)
 
 	if err != nil {

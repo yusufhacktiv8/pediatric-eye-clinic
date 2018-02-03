@@ -27,6 +27,24 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
+// CreateDisease create disease
+func (a *DiseaseController) CreateDisease(w http.ResponseWriter, r *http.Request) {
+	var disease models.Disease
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&disease); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+	defer r.Body.Close()
+
+	if err := disease.Create(a.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusCreated, disease)
+}
+
 // FindDiseases find diseases
 func (a *DiseaseController) FindDiseases(w http.ResponseWriter, r *http.Request) {
 	count, _ := strconv.Atoi(r.FormValue("count"))

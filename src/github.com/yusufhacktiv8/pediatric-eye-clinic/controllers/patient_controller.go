@@ -15,6 +15,24 @@ type PatientController struct {
 	DB *sql.DB
 }
 
+// CreatePatient create patient
+func (a *PatientController) CreatePatient(w http.ResponseWriter, r *http.Request) {
+	var patient models.Patient
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&patient); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+	defer r.Body.Close()
+
+	if err := patient.Create(a.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusCreated, patient)
+}
+
 // FindPatients find patients
 func (a *PatientController) FindPatients(w http.ResponseWriter, r *http.Request) {
 	count, _ := strconv.Atoi(r.FormValue("count"))

@@ -155,11 +155,13 @@ func (a *App) initializeRoutes() {
 
 	diseaseController := controllers.DiseaseController{DB: a.DB}
 	patientController := controllers.PatientController{DB: a.DB}
+	a.Router.HandleFunc("/diseases", diseaseController.CreateDisease).Methods("POST")
 	a.Router.HandleFunc("/diseases", diseaseController.FindDiseases).Methods("GET")
 	a.Router.HandleFunc("/diseases/{code:\\w+}", diseaseController.FindDisease).Methods("GET")
 	a.Router.HandleFunc("/diseases/{code:\\w+}", diseaseController.UpdateDisease).Methods("PUT")
 	a.Router.HandleFunc("/diseases/{code:\\w+}", diseaseController.DeleteDisease).Methods("DELETE")
 
+	a.Router.HandleFunc("/patients", patientController.CreatePatient).Methods("POST")
 	a.Router.HandleFunc("/patients", patientController.FindPatients).Methods("GET")
 	a.Router.HandleFunc("/patients/{code:\\w+}", patientController.FindPatient).Methods("GET")
 	a.Router.HandleFunc("/patients/{code:\\w+}", patientController.UpdatePatient).Methods("PUT")
