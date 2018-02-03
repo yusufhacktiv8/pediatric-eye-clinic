@@ -4,7 +4,7 @@ import (
 	"database/sql"
 )
 
-// Patient is a model for disease
+// Patient is a model for patient
 type Patient struct {
 	ID   int    `json:"id"`
 	Code string `json:"code"`
@@ -36,13 +36,13 @@ func FindPatients(db *sql.DB, start, count int) ([]Patient, error) {
 	return patients, nil
 }
 
-// FindOne to find one disease based on code
+// FindOne to find one patient based on code
 func (d *Patient) FindOne(db *sql.DB) error {
 	return db.QueryRow("SELECT code, name FROM patients WHERE code=$1",
 		d.Code).Scan(&d.Code, &d.Name)
 }
 
-// Update disease
+// Update patient
 func (d *Patient) Update(db *sql.DB) error {
 	_, err :=
 		db.Exec("UPDATE patients SET code=$1, name=$2 WHERE code=$3",
@@ -51,7 +51,7 @@ func (d *Patient) Update(db *sql.DB) error {
 	return err
 }
 
-// Delete disease
+// Delete patient
 func (d *Patient) Delete(db *sql.DB) error {
 	_, err := db.Exec("DELETE FROM patients WHERE code=$1", d.Code)
 
