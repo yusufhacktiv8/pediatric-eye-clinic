@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"github.com/yusufhacktiv8/pediatric-eye-clinic/controllers"
 )
 
 type App struct {
@@ -151,8 +152,11 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/product/{id:[0-9]+}", a.getProduct).Methods("GET")
 	a.Router.HandleFunc("/product/{id:[0-9]+}", a.updateProduct).Methods("PUT")
 	a.Router.HandleFunc("/product/{id:[0-9]+}", a.deleteProduct).Methods("DELETE")
+
+	diseaseController := controllers.DiseaseController{DB: a.DB}
+	a.Router.HandleFunc("/diseases", diseaseController.FindDiseases).Methods("GET")
 }
 
 func (a *App) Run(addr string) {
-	log.Fatal(http.ListenAndServe(":8000", a.Router))
+	log.Fatal(http.ListenAndServe(addr, a.Router))
 }

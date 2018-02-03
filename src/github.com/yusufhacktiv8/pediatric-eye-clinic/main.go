@@ -1,13 +1,17 @@
 package main
 
-import "os"
+import "fmt"
 
 func main() {
 	a := App{}
+	fmt.Printf("Running PEC Server...\n")
 	a.Initialize(
-		os.Getenv("APP_DB_USERNAME"),
-		os.Getenv("APP_DB_PASSWORD"),
-		os.Getenv("APP_DB_NAME"))
+		// os.Getenv("APP_DB_USERNAME"),
+		// os.Getenv("APP_DB_PASSWORD"),
+		// os.Getenv("APP_DB_NAME"))
+		"myyusuf",
+		"",
+		"pec")
 
 	a.Run(":8080")
 }
