@@ -158,6 +158,8 @@ func (a *App) initializeRoutes() {
 	medicalRecordController := controllers.MedicalRecordController{DB: a.DB}
 	occupationController := controllers.OccupationController{DB: a.DB}
 	insuranceController := controllers.InsuranceController{DB: a.DB}
+	roleController := controllers.RoleController{DB: a.DB}
+	userController := controllers.UserController{DB: a.DB}
 	a.Router.HandleFunc("/diseases", diseaseController.CreateDisease).Methods("POST")
 	a.Router.HandleFunc("/diseases", diseaseController.FindDiseases).Methods("GET")
 	a.Router.HandleFunc("/diseases/{code:\\w+}", diseaseController.FindDisease).Methods("GET")
@@ -187,6 +189,17 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/insurances/{code:\\w+}", insuranceController.FindInsurance).Methods("GET")
 	a.Router.HandleFunc("/insurances/{code:\\w+}", insuranceController.UpdateInsurance).Methods("PUT")
 	a.Router.HandleFunc("/insurances/{code:\\w+}", insuranceController.DeleteInsurance).Methods("DELETE")
+
+	a.Router.HandleFunc("/roles", roleController.CreateRole).Methods("POST")
+	a.Router.HandleFunc("/roles", roleController.FindRoles).Methods("GET")
+	a.Router.HandleFunc("/roles/{code:\\w+}", roleController.FindRole).Methods("GET")
+	a.Router.HandleFunc("/roles/{code:\\w+}", roleController.UpdateRole).Methods("PUT")
+	a.Router.HandleFunc("/roles/{code:\\w+}", roleController.DeleteRole).Methods("DELETE")
+
+	a.Router.HandleFunc("/users", userController.CreateUser).Methods("POST")
+	a.Router.HandleFunc("/users", userController.FindUsers).Methods("GET")
+	a.Router.HandleFunc("/users/{code:\\w+}", userController.UpdateUser).Methods("PUT")
+	a.Router.HandleFunc("/users/{code:\\w+}", userController.DeleteUser).Methods("DELETE")
 }
 
 func (a *App) Run(addr string) {
