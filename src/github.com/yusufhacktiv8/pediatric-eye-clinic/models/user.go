@@ -21,9 +21,9 @@ func FindUsers(db *sql.DB, start, count int) ([]User, error) {
 			u.email,
 			u.name,
 			r.code AS role_code,
-			r.name AS role_name,
+			r.name AS role_name
 		FROM
-			users
+			users u
 		LEFT JOIN roles r ON u.role = r.id
 		LIMIT $1 OFFSET $2`,
 		count, start)
@@ -78,7 +78,7 @@ func (d *User) Create(db *sql.DB) error {
 			password,
 			name,
 			role) VALUES($1, $2, $3, $4) RETURNING id`,
-		d.Email, d.Password, d.Name, d.Role).Scan(&d.ID)
+		d.Email, d.Password, d.Name, d.Role.ID).Scan(&d.ID)
 
 	if err != nil {
 		return err

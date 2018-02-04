@@ -198,8 +198,8 @@ func (a *App) initializeRoutes() {
 
 	a.Router.HandleFunc("/users", userController.CreateUser).Methods("POST")
 	a.Router.HandleFunc("/users", userController.FindUsers).Methods("GET")
-	a.Router.HandleFunc("/users/{code:\\w+}", userController.UpdateUser).Methods("PUT")
-	a.Router.HandleFunc("/users/{code:\\w+}", userController.DeleteUser).Methods("DELETE")
+	a.Router.HandleFunc("/users/{email:\\w[-._\\w]*\\w@\\w[-._\\w]*\\w\\.\\w{2,3}}", userController.UpdateUser).Methods("PUT")
+	a.Router.HandleFunc("/users/{email:\\w[-._\\w]*\\w@\\w[-._\\w]*\\w\\.\\w{2,3}}", userController.DeleteUser).Methods("DELETE")
 }
 
 func (a *App) Run(addr string) {
