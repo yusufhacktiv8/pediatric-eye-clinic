@@ -54,6 +54,29 @@ func FindUsers(db *sql.DB, start, count int) ([]User, error) {
 	return users, nil
 }
 
+func CountUsers(db *sql.DB) (int, error) {
+	rows, err := db.Query(
+		`SELECT
+			count(1) AS rowsCount
+		FROM
+			users u`)
+
+	if err != nil {
+		return 0, err
+	}
+
+	defer rows.Close()
+
+	rowsCount := 0
+	for rows.Next() {
+		if err := rows.Scan(&rowsCount); err != nil {
+			return 0, err
+		}
+	}
+
+	return rowsCount, nil
+}
+
 // Update user
 func (d *User) Update(db *sql.DB) error {
 	_, err :=
