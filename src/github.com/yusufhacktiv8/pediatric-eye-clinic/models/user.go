@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 )
 
 // User is a model for user
@@ -14,7 +15,7 @@ type User struct {
 }
 
 // FindUsers to find users
-func FindUsers(db *sql.DB, start, count int) ([]User, error) {
+func FindUsers(db *sql.DB, start, count int, searchText string) ([]User, error) {
 	rows, err := db.Query(
 		`SELECT
 			u.id,
@@ -25,10 +26,12 @@ func FindUsers(db *sql.DB, start, count int) ([]User, error) {
 		FROM
 			users u
 		LEFT JOIN roles r ON u.role = r.id
+		WHERE u.email LIKE $3 or u.name LIKE $3
 		LIMIT $1 OFFSET $2`,
-		count, start)
+		count, start, "%"+searchText+"%")
 
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -54,12 +57,14 @@ func FindUsers(db *sql.DB, start, count int) ([]User, error) {
 	return users, nil
 }
 
-func CountUsers(db *sql.DB) (int, error) {
+func CountUsers(db *sql.DB, searchText string) (int, error) {
 	rows, err := db.Query(
 		`SELECT
 			count(1) AS rowsCount
 		FROM
-			users u`)
+			users u
+		WHERE u.email LIKE $1 or u.name LIKE $1`,
+		"%"+searchText+"%")
 
 	if err != nil {
 		return 0, err
@@ -100,10 +105,13 @@ func (d *User) Create(db *sql.DB) error {
 		(email,
 			password,
 			name,
-			role) VALUES($1, $2, $3, $4) RETURNING id`,
-		d.Email, d.Password, d.Name, d.Role.ID).Scan(&d.ID)
+			role) VALUES($1, $2, $3, $4)
+			ON CONFLICT (email) DO UPDATE
+			SET name=$5 RETURNING id`,
+		d.Email, d.Password, d.Name, d.Role.ID, d.Name).Scan(&d.ID)
 
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 

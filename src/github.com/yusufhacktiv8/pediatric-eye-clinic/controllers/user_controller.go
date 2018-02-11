@@ -23,7 +23,6 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.Marshal(payload)
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(code)
 	w.Write(response)
 }
@@ -50,6 +49,7 @@ func (a *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (a *UserController) FindUsers(w http.ResponseWriter, r *http.Request) {
 	count, _ := strconv.Atoi(r.FormValue("count"))
 	start, _ := strconv.Atoi(r.FormValue("start"))
+	searchText := r.FormValue("searchText")
 
 	if count > 10 || count < 1 {
 		count = 10
@@ -58,13 +58,13 @@ func (a *UserController) FindUsers(w http.ResponseWriter, r *http.Request) {
 		start = 0
 	}
 
-	users, err := models.FindUsers(a.DB, start, count)
+	users, err := models.FindUsers(a.DB, start, count, searchText)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	usersCount, err := models.CountUsers(a.DB)
+	usersCount, err := models.CountUsers(a.DB, searchText)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return

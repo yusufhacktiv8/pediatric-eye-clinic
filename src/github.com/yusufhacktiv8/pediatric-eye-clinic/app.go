@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"github.com/rs/cors"
 	"github.com/yusufhacktiv8/pediatric-eye-clinic/controllers"
 )
 
@@ -203,5 +204,9 @@ func (a *App) initializeRoutes() {
 }
 
 func (a *App) Run(addr string) {
-	log.Fatal(http.ListenAndServe(addr, a.Router))
+	c := cors.New(cors.Options{
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+	})
+	handler := c.Handler(a.Router)
+	log.Fatal(http.ListenAndServe(addr, handler))
 }
