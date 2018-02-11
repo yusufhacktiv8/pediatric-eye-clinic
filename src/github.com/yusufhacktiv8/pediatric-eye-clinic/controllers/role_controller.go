@@ -37,6 +37,7 @@ func (a *RoleController) CreateRole(w http.ResponseWriter, r *http.Request) {
 func (a *RoleController) FindRoles(w http.ResponseWriter, r *http.Request) {
 	count, _ := strconv.Atoi(r.FormValue("count"))
 	start, _ := strconv.Atoi(r.FormValue("start"))
+	searchText := r.FormValue("searchText")
 
 	if count > 10 || count < 1 {
 		count = 10
@@ -45,13 +46,21 @@ func (a *RoleController) FindRoles(w http.ResponseWriter, r *http.Request) {
 		start = 0
 	}
 
-	roles, err := models.FindRoles(a.DB, start, count)
+	roles, err := models.FindRoles(a.DB, start, count, searchText)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, roles)
+	rolesCount, err := models.CountRoles(a.DB, searchText)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	result := map[string]interface{}{"roles": roles, "count": rolesCount}
+
+	respondWithJSON(w, http.StatusOK, result)
 }
 
 // FindRole to find one role based on code
