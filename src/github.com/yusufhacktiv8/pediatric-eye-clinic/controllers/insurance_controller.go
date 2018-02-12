@@ -37,6 +37,7 @@ func (a *InsuranceController) CreateInsurance(w http.ResponseWriter, r *http.Req
 func (a *InsuranceController) FindInsurances(w http.ResponseWriter, r *http.Request) {
 	count, _ := strconv.Atoi(r.FormValue("count"))
 	start, _ := strconv.Atoi(r.FormValue("start"))
+	searchText := r.FormValue("searchText")
 
 	if count > 10 || count < 1 {
 		count = 10
@@ -45,13 +46,20 @@ func (a *InsuranceController) FindInsurances(w http.ResponseWriter, r *http.Requ
 		start = 0
 	}
 
-	insurances, err := models.FindInsurances(a.DB, start, count)
+	insurances, err := models.FindInsurances(a.DB, start, count, searchText)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, insurances)
+	insurancesCount, err := models.CountInsurances(a.DB, searchText)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	result := map[string]interface{}{"insurances": insurances, "count": insurancesCount}
+	respondWithJSON(w, http.StatusOK, result)
 }
 
 // FindInsurance to find one insurance based on code
