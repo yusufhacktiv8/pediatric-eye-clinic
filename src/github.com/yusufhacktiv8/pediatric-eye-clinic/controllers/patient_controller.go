@@ -37,6 +37,7 @@ func (a *PatientController) CreatePatient(w http.ResponseWriter, r *http.Request
 func (a *PatientController) FindPatients(w http.ResponseWriter, r *http.Request) {
 	count, _ := strconv.Atoi(r.FormValue("count"))
 	start, _ := strconv.Atoi(r.FormValue("start"))
+	searchText := r.FormValue("searchText")
 
 	if count > 10 || count < 1 {
 		count = 10
@@ -45,13 +46,20 @@ func (a *PatientController) FindPatients(w http.ResponseWriter, r *http.Request)
 		start = 0
 	}
 
-	patients, err := models.FindPatients(a.DB, start, count)
+	patients, err := models.FindPatients(a.DB, start, count, searchText)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, patients)
+	patientsCount, err := models.CountPatients(a.DB, searchText)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	result := map[string]interface{}{"patients": patients, "count": patientsCount}
+	respondWithJSON(w, http.StatusOK, result)
 }
 
 // FindPatient to find one patient based on code

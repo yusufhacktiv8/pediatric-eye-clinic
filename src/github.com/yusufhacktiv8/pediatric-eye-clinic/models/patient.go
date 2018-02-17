@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 )
 
@@ -21,7 +22,7 @@ type Patient struct {
 }
 
 // FindPatients to find patients
-func FindPatients(db *sql.DB, start, count int) ([]Patient, error) {
+func FindPatients(db *sql.DB, start, count int, searchText string) ([]Patient, error) {
 	rows, err := db.Query(
 		`SELECT
 			p.id,
@@ -43,8 +44,9 @@ func FindPatients(db *sql.DB, start, count int) ([]Patient, error) {
 		LEFT JOIN occupations o1 ON p.father_occupation = o1.id
 		LEFT JOIN occupations o2 ON p.mother_occupation = o2.id
 		LEFT JOIN insurances i ON p.insurance = i.id
+		WHERE p.code LIKE $3 OR p.name LIKE $3  ORDER BY p.code
 		LIMIT $1 OFFSET $2`,
-		count, start)
+		count, start, "%"+searchText+"%")
 
 	if err != nil {
 		return nil, err
@@ -98,6 +100,32 @@ func FindPatients(db *sql.DB, start, count int) ([]Patient, error) {
 	}
 
 	return patients, nil
+}
+
+func CountPatients(db *sql.DB, searchText string) (int, error) {
+	rows, err := db.Query(
+		`SELECT
+			count(1) AS rowsCount
+		FROM
+			patients p
+		WHERE p.code LIKE $1 or p.name LIKE $1`,
+		"%"+searchText+"%")
+
+	if err != nil {
+		fmt.Println(err)
+		return 0, err
+	}
+
+	defer rows.Close()
+
+	rowsCount := 0
+	for rows.Next() {
+		if err := rows.Scan(&rowsCount); err != nil {
+			return 0, err
+		}
+	}
+
+	return rowsCount, nil
 }
 
 // FindOne to find one patient based on code
@@ -216,7 +244,19 @@ func (d *Patient) Create(db *sql.DB) error {
 			referral_origin,
 			insurance)
 		VALUES
-			($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
+			($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		ON CONFLICT (code) DO UPDATE
+		SET
+			name=$2,
+			date_of_birth=$3,
+			address=$4,
+			father_name=$5,
+			mother_name=$6,
+			father_occupation=$7,
+			mother_occupation=$8,
+			referral_origin=$9,
+			insurance=$10
+		RETURNING id`,
 		d.Code,
 		d.Name,
 		d.DateOfBirth,
