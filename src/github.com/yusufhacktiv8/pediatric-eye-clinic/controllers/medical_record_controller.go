@@ -10,33 +10,34 @@ import (
 	"github.com/yusufhacktiv8/pediatric-eye-clinic/models"
 )
 
-// MedicalRecordController for patient feature
+// MedicalRecordController for medicalRecord feature
 type MedicalRecordController struct {
 	DB *sql.DB
 }
 
-// CreateMedicalRecord create patient
+// CreateMedicalRecord create medicalRecord
 func (a *MedicalRecordController) CreateMedicalRecord(w http.ResponseWriter, r *http.Request) {
-	var patient models.MedicalRecord
+	var medicalRecord models.MedicalRecord
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&patient); err != nil {
+	if err := decoder.Decode(&medicalRecord); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 	defer r.Body.Close()
 
-	if err := patient.Create(a.DB); err != nil {
+	if err := medicalRecord.Create(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, patient)
+	respondWithJSON(w, http.StatusCreated, medicalRecord)
 }
 
-// FindMedicalRecords find patients
+// FindMedicalRecords find medicalRecords
 func (a *MedicalRecordController) FindMedicalRecords(w http.ResponseWriter, r *http.Request) {
 	count, _ := strconv.Atoi(r.FormValue("count"))
 	start, _ := strconv.Atoi(r.FormValue("start"))
+	searchText := r.FormValue("searchText")
 
 	if count > 10 || count < 1 {
 		count = 10
@@ -45,22 +46,30 @@ func (a *MedicalRecordController) FindMedicalRecords(w http.ResponseWriter, r *h
 		start = 0
 	}
 
-	patients, err := models.FindMedicalRecords(a.DB, start, count)
+	medicalRecords, err := models.FindMedicalRecords(a.DB, start, count, searchText)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, patients)
+	medicalRecordsCount, err := models.CountMedicalRecords(a.DB, searchText)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	result := map[string]interface{}{"medicalRecords": medicalRecords, "count": medicalRecordsCount}
+
+	respondWithJSON(w, http.StatusOK, result)
 }
 
-// FindMedicalRecord to find one patient based on code
+// FindMedicalRecord to find one medicalRecord based on code
 func (a *MedicalRecordController) FindMedicalRecord(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	code := vars["code"]
 
-	patient := models.MedicalRecord{Code: code}
-	if err := patient.FindOne(a.DB); err != nil {
+	medicalRecord := models.MedicalRecord{Code: code}
+	if err := medicalRecord.FindOne(a.DB); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			respondWithError(w, http.StatusNotFound, "MedicalRecord not found")
@@ -70,38 +79,38 @@ func (a *MedicalRecordController) FindMedicalRecord(w http.ResponseWriter, r *ht
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, patient)
+	respondWithJSON(w, http.StatusOK, medicalRecord)
 }
 
-// UpdateMedicalRecord update patient
+// UpdateMedicalRecord update medicalRecord
 func (a *MedicalRecordController) UpdateMedicalRecord(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	code := vars["code"]
 
-	var patient models.MedicalRecord
+	var medicalRecord models.MedicalRecord
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&patient); err != nil {
+	if err := decoder.Decode(&medicalRecord); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 		return
 	}
 	defer r.Body.Close()
-	patient.Code = code
+	medicalRecord.Code = code
 
-	if err := patient.Update(a.DB); err != nil {
+	if err := medicalRecord.Update(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, patient)
+	respondWithJSON(w, http.StatusOK, medicalRecord)
 }
 
-// DeleteMedicalRecord delete patient
+// DeleteMedicalRecord delete medicalRecord
 func (a *MedicalRecordController) DeleteMedicalRecord(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	code := vars["code"]
 
-	patient := models.MedicalRecord{Code: code}
-	if err := patient.Delete(a.DB); err != nil {
+	medicalRecord := models.MedicalRecord{Code: code}
+	if err := medicalRecord.Delete(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

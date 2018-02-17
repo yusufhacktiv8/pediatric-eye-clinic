@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 )
 
 // MedicalRecord is a model for patient
@@ -21,7 +22,7 @@ type MedicalRecord struct {
 }
 
 // FindMedicalRecords to find medicalRecords
-func FindMedicalRecords(db *sql.DB, start, count int) ([]MedicalRecord, error) {
+func FindMedicalRecords(db *sql.DB, start, count int, searchText string) ([]MedicalRecord, error) {
 	rows, err := db.Query(
 		`SELECT
 			id,
@@ -36,8 +37,10 @@ func FindMedicalRecords(db *sql.DB, start, count int) ([]MedicalRecord, error) {
 			keratometri,
 			pre_op_visual_acuity,
 			post_op_visual_acuity
-		FROM medical_records LIMIT $1 OFFSET $2`,
-		count, start)
+		FROM medical_records
+		WHERE code LIKE $3 ORDER BY code
+		LIMIT $1 OFFSET $2`,
+		count, start, "%"+searchText+"%")
 
 	if err != nil {
 		return nil, err
@@ -68,6 +71,32 @@ func FindMedicalRecords(db *sql.DB, start, count int) ([]MedicalRecord, error) {
 	}
 
 	return medicalRecords, nil
+}
+
+func CountMedicalRecords(db *sql.DB, searchText string) (int, error) {
+	rows, err := db.Query(
+		`SELECT
+			count(1) AS rowsCount
+		FROM
+			medical_records r
+		WHERE r.code LIKE $1`,
+		"%"+searchText+"%")
+
+	if err != nil {
+		fmt.Println(err)
+		return 0, err
+	}
+
+	defer rows.Close()
+
+	rowsCount := 0
+	for rows.Next() {
+		if err := rows.Scan(&rowsCount); err != nil {
+			return 0, err
+		}
+	}
+
+	return rowsCount, nil
 }
 
 // FindOne to find one patient based on code
@@ -168,7 +197,20 @@ func (d *MedicalRecord) Create(db *sql.DB) error {
 				$8,
 				$9,
 				$10,
-				$11) RETURNING id`,
+				$11)
+			ON CONFLICT (code) DO UPDATE
+			SET
+				corneal_diameter=$2,
+				intraocular_pressure=$3,
+				axial_length=$4,
+				refraksi=$5,
+				axis=$6,
+				iol_type=$7,
+				iol_power=$8,
+				keratometri=$9,
+				pre_op_visual_acuity=$10,
+				post_op_visual_acuity=$11
+			RETURNING id`,
 		d.Code,
 		d.CornealDiameter,
 		d.IntraocularPressure,
