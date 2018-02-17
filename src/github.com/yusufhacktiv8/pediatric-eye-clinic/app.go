@@ -188,6 +188,7 @@ func (a *App) initializeRoutes() {
 
 	a.Router.HandleFunc("/insurances", insuranceController.CreateInsurance).Methods("POST")
 	a.Router.HandleFunc("/insurances", insuranceController.FindInsurances).Methods("GET")
+	a.Router.HandleFunc("/insurances_all", insuranceController.FindAllInsurances).Methods("GET")
 	a.Router.HandleFunc("/insurances/{code:\\w+}", insuranceController.FindInsurance).Methods("GET")
 	a.Router.HandleFunc("/insurances/{code:\\w+}", insuranceController.UpdateInsurance).Methods("PUT")
 	a.Router.HandleFunc("/insurances/{code:\\w+}", insuranceController.DeleteInsurance).Methods("DELETE")

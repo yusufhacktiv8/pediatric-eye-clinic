@@ -36,9 +36,11 @@ func FindPatients(db *sql.DB, start, count int, searchText string) ([]Patient, e
 			o1.id as father_occupation_id,
 			o1.code as father_occupation_code,
 			o1.name as father_occupation_name,
+			o2.id as mother_occupation_id,
 			o2.code as mother_occupation_code,
 			o2.name as mother_occupation_name,
 			p.referral_origin,
+			i.id as insurance_id,
 			i.code as insurance_code,
 			i.name as insurance_name
 		FROM
@@ -57,11 +59,13 @@ func FindPatients(db *sql.DB, start, count int, searchText string) ([]Patient, e
 	defer rows.Close()
 
 	patients := []Patient{}
-	var fatherOccupationId sql.NullString
+	var fatherOccupationID sql.NullString
 	var fatherOccupationCode sql.NullString
 	var fatherOccupationName sql.NullString
+	var motherOccupationID sql.NullString
 	var motherOccupationCode sql.NullString
 	var motherOccupationName sql.NullString
+	var insuranceID sql.NullString
 	var insuranceCode sql.NullString
 	var insuranceName sql.NullString
 
@@ -75,29 +79,33 @@ func FindPatients(db *sql.DB, start, count int, searchText string) ([]Patient, e
 			&d.Address,
 			&d.FatherName,
 			&d.MotherName,
-			&fatherOccupationId,
+			&fatherOccupationID,
 			&fatherOccupationCode,
 			&fatherOccupationName,
+			&motherOccupationID,
 			&motherOccupationCode,
 			&motherOccupationName,
 			&d.ReferralOrigin,
+			&insuranceID,
 			&insuranceCode,
 			&insuranceName); err != nil {
 			return nil, err
 		}
 
 		if fatherOccupationCode.Valid {
-			d.FatherOccupation.ID, _ = strconv.Atoi(fatherOccupationId.String)
+			d.FatherOccupation.ID, _ = strconv.Atoi(fatherOccupationID.String)
 			d.FatherOccupation.Code = fatherOccupationCode.String
 			d.FatherOccupation.Name = fatherOccupationName.String
 		}
 
 		if motherOccupationCode.Valid {
+			d.MotherOccupation.ID, _ = strconv.Atoi(motherOccupationID.String)
 			d.MotherOccupation.Code = motherOccupationCode.String
 			d.MotherOccupation.Name = motherOccupationName.String
 		}
 
 		if insuranceCode.Valid {
+			d.Insurance.ID, _ = strconv.Atoi(insuranceID.String)
 			d.Insurance.Code = insuranceCode.String
 			d.Insurance.Name = insuranceName.String
 		}

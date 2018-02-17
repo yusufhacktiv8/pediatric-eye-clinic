@@ -62,6 +62,16 @@ func (a *InsuranceController) FindInsurances(w http.ResponseWriter, r *http.Requ
 	respondWithJSON(w, http.StatusOK, result)
 }
 
+func (a *InsuranceController) FindAllInsurances(w http.ResponseWriter, r *http.Request) {
+	insurances, err := models.FindAllInsurances(a.DB)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, insurances)
+}
+
 // FindInsurance to find one insurance based on code
 func (a *InsuranceController) FindInsurance(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)

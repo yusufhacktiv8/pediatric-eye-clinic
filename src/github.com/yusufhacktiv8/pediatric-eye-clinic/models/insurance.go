@@ -63,6 +63,28 @@ func CountInsurances(db *sql.DB, searchText string) (int, error) {
 	return rowsCount, nil
 }
 
+func FindAllInsurances(db *sql.DB) ([]Insurance, error) {
+	rows, err := db.Query("SELECT id, code, name FROM insurances")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	insurances := []Insurance{}
+
+	for rows.Next() {
+		var d Insurance
+		if err := rows.Scan(&d.ID, &d.Code, &d.Name); err != nil {
+			return nil, err
+		}
+		insurances = append(insurances, d)
+	}
+
+	return insurances, nil
+}
+
 // FindOne to find one insurance based on code
 func (d *Insurance) FindOne(db *sql.DB) error {
 	return db.QueryRow("SELECT code, name FROM insurances WHERE code=$1",
