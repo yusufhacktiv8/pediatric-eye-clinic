@@ -63,6 +63,28 @@ func CountOccupations(db *sql.DB, searchText string) (int, error) {
 	return rowsCount, nil
 }
 
+func FindAllOccupations(db *sql.DB) ([]Occupation, error) {
+	rows, err := db.Query("SELECT id, code, name FROM occupations")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	occupations := []Occupation{}
+
+	for rows.Next() {
+		var d Occupation
+		if err := rows.Scan(&d.ID, &d.Code, &d.Name); err != nil {
+			return nil, err
+		}
+		occupations = append(occupations, d)
+	}
+
+	return occupations, nil
+}
+
 // FindOne to find one occupation based on code
 func (d *Occupation) FindOne(db *sql.DB) error {
 	return db.QueryRow("SELECT code, name FROM occupations WHERE code=$1",

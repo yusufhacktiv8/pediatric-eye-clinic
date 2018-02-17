@@ -181,6 +181,7 @@ func (a *App) initializeRoutes() {
 
 	a.Router.HandleFunc("/occupations", occupationController.CreateOccupation).Methods("POST")
 	a.Router.HandleFunc("/occupations", occupationController.FindOccupations).Methods("GET")
+	a.Router.HandleFunc("/occupations_all", occupationController.FindAllOccupations).Methods("GET")
 	a.Router.HandleFunc("/occupations/{code:\\w+}", occupationController.FindOccupation).Methods("GET")
 	a.Router.HandleFunc("/occupations/{code:\\w+}", occupationController.UpdateOccupation).Methods("PUT")
 	a.Router.HandleFunc("/occupations/{code:\\w+}", occupationController.DeleteOccupation).Methods("DELETE")

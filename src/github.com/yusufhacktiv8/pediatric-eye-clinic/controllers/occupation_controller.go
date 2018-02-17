@@ -63,6 +63,16 @@ func (a *OccupationController) FindOccupations(w http.ResponseWriter, r *http.Re
 	respondWithJSON(w, http.StatusOK, result)
 }
 
+func (a *OccupationController) FindAllOccupations(w http.ResponseWriter, r *http.Request) {
+	occupations, err := models.FindAllOccupations(a.DB)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, occupations)
+}
+
 // FindOccupation to find one occupation based on code
 func (a *OccupationController) FindOccupation(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
