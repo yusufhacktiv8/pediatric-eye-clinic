@@ -27,24 +27,24 @@ type MedicalRecord struct {
 func FindMedicalRecords(db *sql.DB, start, count int, searchText string) ([]MedicalRecord, error) {
 	rows, err := db.Query(
 		`SELECT
-			id,
-			code,
-			corneal_diameter,
-			intraocular_pressure,
-			axial_length,
-			refraksi,
-			axis,
-			iol_type,
-			iol_power,
-			keratometri,
-			pre_op_visual_acuity,
-			post_op_visual_acuity,
+			m.id,
+			m.code,
+			m.corneal_diameter,
+			m.intraocular_pressure,
+			m.axial_length,
+			m.refraksi,
+			m.axis,
+			m.iol_type,
+			m.iol_power,
+			m.keratometri,
+			m.pre_op_visual_acuity,
+			m.post_op_visual_acuity,
 			p.id as patient_id,
 			p.code as patient_code,
-			p.name as patient_name,
+			p.name as patient_name
 		FROM medical_records m
 		LEFT JOIN patients p ON m.patient = p.id
-		WHERE code LIKE $3 ORDER BY code
+		WHERE m.code LIKE $3 ORDER BY m.code
 		LIMIT $1 OFFSET $2`,
 		count, start, "%"+searchText+"%")
 
@@ -203,7 +203,8 @@ func (d *MedicalRecord) Create(db *sql.DB) error {
 			iol_power,
 			keratometri,
 			pre_op_visual_acuity,
-			post_op_visual_acuity) VALUES
+			post_op_visual_acuity,
+			patient) VALUES
 			(	$1,
 				$2,
 			 	$3,
@@ -214,7 +215,8 @@ func (d *MedicalRecord) Create(db *sql.DB) error {
 				$8,
 				$9,
 				$10,
-				$11)
+				$11,
+				$12)
 			ON CONFLICT (code) DO UPDATE
 			SET
 				corneal_diameter=$2,
@@ -226,7 +228,8 @@ func (d *MedicalRecord) Create(db *sql.DB) error {
 				iol_power=$8,
 				keratometri=$9,
 				pre_op_visual_acuity=$10,
-				post_op_visual_acuity=$11
+				post_op_visual_acuity=$11,
+				patient=$12
 			RETURNING id`,
 		d.Code,
 		d.CornealDiameter,
@@ -238,7 +241,8 @@ func (d *MedicalRecord) Create(db *sql.DB) error {
 		d.IOLPower,
 		d.Keratometri,
 		d.PreOpVisualAcuity,
-		d.PostOpVisualAcuity).Scan(&d.ID)
+		d.PostOpVisualAcuity,
+		d.Patient.ID).Scan(&d.ID)
 
 	if err != nil {
 		return err
