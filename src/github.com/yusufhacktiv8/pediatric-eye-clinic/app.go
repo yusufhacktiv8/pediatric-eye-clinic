@@ -169,6 +169,7 @@ func (a *App) initializeRoutes() {
 
 	a.Router.HandleFunc("/patients", patientController.CreatePatient).Methods("POST")
 	a.Router.HandleFunc("/patients", patientController.FindPatients).Methods("GET")
+	a.Router.HandleFunc("/patients_all", patientController.FindAllPatients).Methods("GET")
 	a.Router.HandleFunc("/patients/{code:\\w+}", patientController.FindPatient).Methods("GET")
 	a.Router.HandleFunc("/patients/{code:\\w+}", patientController.UpdatePatient).Methods("PUT")
 	a.Router.HandleFunc("/patients/{code:\\w+}", patientController.DeletePatient).Methods("DELETE")

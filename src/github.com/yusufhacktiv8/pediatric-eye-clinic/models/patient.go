@@ -141,6 +141,28 @@ func CountPatients(db *sql.DB, searchText string) (int, error) {
 	return rowsCount, nil
 }
 
+func FindAllPatients(db *sql.DB) ([]Patient, error) {
+	rows, err := db.Query("SELECT id, code, name FROM patients")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	patients := []Patient{}
+
+	for rows.Next() {
+		var d Patient
+		if err := rows.Scan(&d.ID, &d.Code, &d.Name); err != nil {
+			return nil, err
+		}
+		patients = append(patients, d)
+	}
+
+	return patients, nil
+}
+
 // FindOne to find one patient based on code
 func (d *Patient) FindOne(db *sql.DB) error {
 	var fatherOccupationCode sql.NullString

@@ -62,6 +62,16 @@ func (a *PatientController) FindPatients(w http.ResponseWriter, r *http.Request)
 	respondWithJSON(w, http.StatusOK, result)
 }
 
+func (a *PatientController) FindAllPatients(w http.ResponseWriter, r *http.Request) {
+	patients, err := models.FindAllPatients(a.DB)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, patients)
+}
+
 // FindPatient to find one patient based on code
 func (a *PatientController) FindPatient(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)

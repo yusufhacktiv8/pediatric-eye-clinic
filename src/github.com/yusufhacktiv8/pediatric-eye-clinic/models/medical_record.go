@@ -3,12 +3,14 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 )
 
 // MedicalRecord is a model for patient
 type MedicalRecord struct {
 	ID                  int     `json:"id"`
 	Code                string  `json:"code"`
+	Patient             Patient `json:"patient"`
 	CornealDiameter     string  `json:"cornealDiameter"`
 	IntraocularPressure string  `json:"intraocularPressure"`
 	AxialLength         float32 `json:"axialLength"`
@@ -36,8 +38,12 @@ func FindMedicalRecords(db *sql.DB, start, count int, searchText string) ([]Medi
 			iol_power,
 			keratometri,
 			pre_op_visual_acuity,
-			post_op_visual_acuity
-		FROM medical_records
+			post_op_visual_acuity,
+			p.id as patient_id,
+			p.code as patient_code,
+			p.name as patient_name,
+		FROM medical_records m
+		LEFT JOIN patients p ON m.patient = p.id
 		WHERE code LIKE $3 ORDER BY code
 		LIMIT $1 OFFSET $2`,
 		count, start, "%"+searchText+"%")
@@ -49,6 +55,9 @@ func FindMedicalRecords(db *sql.DB, start, count int, searchText string) ([]Medi
 	defer rows.Close()
 
 	medicalRecords := []MedicalRecord{}
+	var patientID sql.NullString
+	var patientCode sql.NullString
+	var patientName sql.NullString
 
 	for rows.Next() {
 		var d MedicalRecord
@@ -64,8 +73,16 @@ func FindMedicalRecords(db *sql.DB, start, count int, searchText string) ([]Medi
 			&d.IOLPower,
 			&d.Keratometri,
 			&d.PreOpVisualAcuity,
-			&d.PostOpVisualAcuity); err != nil {
+			&d.PostOpVisualAcuity,
+			&patientID,
+			&patientCode,
+			&patientName); err != nil {
 			return nil, err
+		}
+		if patientCode.Valid {
+			d.Patient.ID, _ = strconv.Atoi(patientID.String)
+			d.Patient.Code = patientCode.String
+			d.Patient.Name = patientName.String
 		}
 		medicalRecords = append(medicalRecords, d)
 	}
