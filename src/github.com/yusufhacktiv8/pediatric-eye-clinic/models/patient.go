@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -32,6 +33,7 @@ func FindPatients(db *sql.DB, start, count int, searchText string) ([]Patient, e
 			p.address,
 			p.father_name,
 			p.mother_name,
+			o1.id as father_occupation_id,
 			o1.code as father_occupation_code,
 			o1.name as father_occupation_name,
 			o2.code as mother_occupation_code,
@@ -55,6 +57,7 @@ func FindPatients(db *sql.DB, start, count int, searchText string) ([]Patient, e
 	defer rows.Close()
 
 	patients := []Patient{}
+	var fatherOccupationId sql.NullString
 	var fatherOccupationCode sql.NullString
 	var fatherOccupationName sql.NullString
 	var motherOccupationCode sql.NullString
@@ -72,6 +75,7 @@ func FindPatients(db *sql.DB, start, count int, searchText string) ([]Patient, e
 			&d.Address,
 			&d.FatherName,
 			&d.MotherName,
+			&fatherOccupationId,
 			&fatherOccupationCode,
 			&fatherOccupationName,
 			&motherOccupationCode,
@@ -83,6 +87,7 @@ func FindPatients(db *sql.DB, start, count int, searchText string) ([]Patient, e
 		}
 
 		if fatherOccupationCode.Valid {
+			d.FatherOccupation.ID, _ = strconv.Atoi(fatherOccupationId.String)
 			d.FatherOccupation.Code = fatherOccupationCode.String
 			d.FatherOccupation.Name = fatherOccupationName.String
 		}
