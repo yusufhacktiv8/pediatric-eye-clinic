@@ -37,6 +37,7 @@ func (a *DiseaseController) CreateDisease(w http.ResponseWriter, r *http.Request
 func (a *DiseaseController) FindDiseases(w http.ResponseWriter, r *http.Request) {
 	count, _ := strconv.Atoi(r.FormValue("count"))
 	start, _ := strconv.Atoi(r.FormValue("start"))
+	searchText := r.FormValue("searchText")
 
 	if count > 10 || count < 1 {
 		count = 10
@@ -45,13 +46,21 @@ func (a *DiseaseController) FindDiseases(w http.ResponseWriter, r *http.Request)
 		start = 0
 	}
 
-	diseases, err := models.FindDiseases(a.DB, start, count)
+	diseases, err := models.FindDiseases(a.DB, start, count, searchText)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, diseases)
+	diseasesCount, err := models.CountDiseases(a.DB, searchText)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	result := map[string]interface{}{"diseases": diseases, "count": diseasesCount}
+
+	respondWithJSON(w, http.StatusOK, result)
 }
 
 // FindDisease to find one disease based on code
