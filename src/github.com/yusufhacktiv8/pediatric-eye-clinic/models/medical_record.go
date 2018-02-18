@@ -4,23 +4,35 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+	"time"
 )
 
 // MedicalRecord is a model for patient
 type MedicalRecord struct {
-	ID                  int     `json:"id"`
-	Code                string  `json:"code"`
-	Patient             Patient `json:"patient"`
-	CornealDiameter     string  `json:"cornealDiameter"`
-	IntraocularPressure float32 `json:"intraocularPressure"`
-	AxialLength         float32 `json:"axialLength"`
-	Refraksi            string  `json:"refraksi"`
-	Axis                float32 `json:"axis"`
-	IOLType             string  `json:"iOLType"`
-	IOLPower            float32 `json:"iOLPower"`
-	Keratometri         string  `json:"keratometri"`
-	PreOpVisualAcuity   string  `json:"preOpVisualAcuity"`
-	PostOpVisualAcuity  string  `json:"postOpVisualAcuity"`
+	ID                  int     	`json:"id"`
+	Code                string  	`json:"code"`
+	Patient             Patient 	`json:"patient"`
+	RecordDate      		time.Time `json:"recordDate"`
+	CornealDiameter     string  	`json:"cornealDiameter"`
+	IntraocularPressure float32 	`json:"intraocularPressure"`
+	AxialLength         float32 	`json:"axialLength"`
+	Refraksi            string  	`json:"refraksi"`
+	Axis                float32 	`json:"axis"`
+	IOLType             string  	`json:"iOLType"`
+	IOLPower            float32 	`json:"iOLPower"`
+	Keratometri         string  	`json:"keratometri"`
+	PreOpVisualAcuity   string  	`json:"preOpVisualAcuity"`
+	PostOpVisualAcuity  string  	`json:"postOpVisualAcuity"`
+	CornealDiameter2     string  	`json:"cornealDiameter2"`
+	IntraocularPressure2 float32 	`json:"intraocularPressure2"`
+	AxialLength2         float32 	`json:"axialLength2"`
+	Refraksi2            string  	`json:"refraksi2"`
+	Axis2                float32 	`json:"axis2"`
+	IOLType2             string  	`json:"iOLType2"`
+	IOLPower2            float32 	`json:"iOLPower2"`
+	Keratometri2         string  	`json:"keratometri2"`
+	PreOpVisualAcuity2   string  	`json:"preOpVisualAcuity2"`
+	PostOpVisualAcuity2  string  	`json:"postOpVisualAcuity2"`
 }
 
 // FindMedicalRecords to find medicalRecords
@@ -41,7 +53,18 @@ func FindMedicalRecords(db *sql.DB, start, count int, searchText string) ([]Medi
 			m.post_op_visual_acuity,
 			p.id as patient_id,
 			p.code as patient_code,
-			p.name as patient_name
+			p.name as patient_name,
+			m.record_date,
+			m.corneal_diameter2,
+			m.intraocular_pressure2,
+			m.axial_length2,
+			m.refraksi2,
+			m.axis2,
+			m.iol_type2,
+			m.iol_power2,
+			m.keratometri2,
+			m.pre_op_visual_acuity2,
+			m.post_op_visual_acuity2
 		FROM medical_records m
 		LEFT JOIN patients p ON m.patient = p.id
 		WHERE m.code LIKE $3 ORDER BY m.code
@@ -76,7 +99,18 @@ func FindMedicalRecords(db *sql.DB, start, count int, searchText string) ([]Medi
 			&d.PostOpVisualAcuity,
 			&patientID,
 			&patientCode,
-			&patientName); err != nil {
+			&patientName,
+			&d.RecordDate,
+			&d.CornealDiameter2,
+			&d.IntraocularPressure2,
+			&d.AxialLength2,
+			&d.Refraksi2,
+			&d.Axis2,
+			&d.IOLType2,
+			&d.IOLPower2,
+			&d.Keratometri2,
+			&d.PreOpVisualAcuity2,
+			&d.PostOpVisualAcuity2); err != nil {
 			return nil, err
 		}
 		if patientCode.Valid {
@@ -204,7 +238,18 @@ func (d *MedicalRecord) Create(db *sql.DB) error {
 			keratometri,
 			pre_op_visual_acuity,
 			post_op_visual_acuity,
-			patient) VALUES
+			patient,
+			record_date,
+			corneal_diameter2,
+			intraocular_pressure2,
+			axial_length2,
+			refraksi2,
+			axis2,
+			iol_type2,
+			iol_power2,
+			keratometri2,
+			pre_op_visual_acuity2,
+			post_op_visual_acuity2) VALUES
 			(	$1,
 				$2,
 			 	$3,
@@ -216,7 +261,18 @@ func (d *MedicalRecord) Create(db *sql.DB) error {
 				$9,
 				$10,
 				$11,
-				$12)
+				$12,
+				$13,
+				$14,
+				$15,
+				$16,
+				$17,
+				$18,
+				$19,
+				$20,
+				$21,
+				$22,
+				$23)
 			ON CONFLICT (code) DO UPDATE
 			SET
 				corneal_diameter=$2,
@@ -229,7 +285,18 @@ func (d *MedicalRecord) Create(db *sql.DB) error {
 				keratometri=$9,
 				pre_op_visual_acuity=$10,
 				post_op_visual_acuity=$11,
-				patient=$12
+				patient=$12,
+				record_date=$13,
+				corneal_diameter2=$14,
+				intraocular_pressure2=$15,
+				axial_length2=$16,
+				refraksi2=$17,
+				axis2=$18,
+				iol_type2=$19,
+				iol_power2=$20,
+				keratometri2=$21,
+				pre_op_visual_acuity2=$22,
+				post_op_visual_acuity2=$23
 			RETURNING id`,
 		d.Code,
 		d.CornealDiameter,
@@ -242,7 +309,18 @@ func (d *MedicalRecord) Create(db *sql.DB) error {
 		d.Keratometri,
 		d.PreOpVisualAcuity,
 		d.PostOpVisualAcuity,
-		d.Patient.ID).Scan(&d.ID)
+		d.Patient.ID,
+		d.RecordDate,
+		d.CornealDiameter2,
+		d.IntraocularPressure2,
+		d.AxialLength2,
+		d.Refraksi2,
+		d.Axis2,
+		d.IOLType2,
+		d.IOLPower2,
+		d.Keratometri2,
+		d.PreOpVisualAcuity2,
+		d.PostOpVisualAcuity2).Scan(&d.ID)
 
 	if err != nil {
 		return err
