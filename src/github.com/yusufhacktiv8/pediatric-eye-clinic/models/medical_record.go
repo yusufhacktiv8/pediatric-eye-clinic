@@ -12,7 +12,7 @@ type MedicalRecord struct {
 	Code                string  `json:"code"`
 	Patient             Patient `json:"patient"`
 	CornealDiameter     string  `json:"cornealDiameter"`
-	IntraocularPressure string  `json:"intraocularPressure"`
+	IntraocularPressure float32 `json:"intraocularPressure"`
 	AxialLength         float32 `json:"axialLength"`
 	Refraksi            string  `json:"refraksi"`
 	Axis                float32 `json:"axis"`
