@@ -139,7 +139,9 @@ func (a *App) initializeRoutes() {
 
 func (a *App) Run(addr string) {
 	c := cors.New(cors.Options{
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Authorization"},
+		AllowCredentials: true,
 	})
 	handler := c.Handler(a.Router)
 	log.Fatal(http.ListenAndServe(addr, handler))
