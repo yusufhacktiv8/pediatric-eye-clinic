@@ -82,6 +82,11 @@ func CountUsers(db *sql.DB, searchText string) (int, error) {
 	return rowsCount, nil
 }
 
+func (d *User) FindOne(db *sql.DB) error {
+	return db.QueryRow("SELECT email, name, password FROM users WHERE email=$1 AND password=$2",
+		d.Email, d.Password).Scan(&d.Email, &d.Name, &d.Password)
+}
+
 // Update user
 func (d *User) Update(db *sql.DB) error {
 	_, err :=

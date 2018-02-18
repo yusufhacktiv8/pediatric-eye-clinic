@@ -35,6 +35,12 @@ func (a *PatientController) CreatePatient(w http.ResponseWriter, r *http.Request
 
 // FindPatients find patients
 func (a *PatientController) FindPatients(w http.ResponseWriter, r *http.Request) {
+
+	// decoded := context.Get(r, "decoded")
+	// var user models.User
+	// mapstructure.Decode(decoded.(jwt.MapClaims), &user)
+	// fmt.Printf("Email..." + user.Email)
+
 	count, _ := strconv.Atoi(r.FormValue("count"))
 	start, _ := strconv.Atoi(r.FormValue("start"))
 	searchText := r.FormValue("searchText")

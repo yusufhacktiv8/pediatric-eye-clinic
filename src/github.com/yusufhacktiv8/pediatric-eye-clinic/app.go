@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
+	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
@@ -45,6 +48,38 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
+func ValidateMiddleware(next http.HandlerFunc) http.HandlerFunc {
+
+	jwtSecretKey := "jshbdgh54gs9jdbx543GnhY67"
+
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		authorizationHeader := req.Header.Get("authorization")
+		if authorizationHeader != "" {
+			bearerToken := strings.Split(authorizationHeader, " ")
+			if len(bearerToken) == 2 {
+				token, error := jwt.Parse(bearerToken[1], func(token *jwt.Token) (interface{}, error) {
+					if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+						return nil, fmt.Errorf("There was an error")
+					}
+					return []byte(jwtSecretKey), nil
+				})
+				if error != nil {
+					respondWithError(w, http.StatusBadRequest, "Error in request")
+					return
+				}
+				if token.Valid {
+					context.Set(req, "decoded", token.Claims)
+					next(w, req)
+				} else {
+					respondWithError(w, http.StatusBadRequest, "Invalid authorization token")
+				}
+			}
+		} else {
+			respondWithError(w, http.StatusBadRequest, "An authorization header is required")
+		}
+	})
+}
+
 func (a *App) initializeRoutes() {
 	loginController := controllers.LoginController{DB: a.DB}
 	diseaseController := controllers.DiseaseController{DB: a.DB}
@@ -64,7 +99,7 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/diseases/{code:\\w+}", diseaseController.DeleteDisease).Methods("DELETE")
 
 	a.Router.HandleFunc("/patients", patientController.CreatePatient).Methods("POST")
-	a.Router.HandleFunc("/patients", patientController.FindPatients).Methods("GET")
+	a.Router.HandleFunc("/patients", ValidateMiddleware(patientController.FindPatients)).Methods("GET")
 	a.Router.HandleFunc("/patients_all", patientController.FindAllPatients).Methods("GET")
 	a.Router.HandleFunc("/patients/{code:\\w+}", patientController.FindPatient).Methods("GET")
 	a.Router.HandleFunc("/patients/{code:\\w+}", patientController.UpdatePatient).Methods("PUT")

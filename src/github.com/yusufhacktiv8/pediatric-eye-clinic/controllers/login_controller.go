@@ -15,6 +15,9 @@ type LoginController struct {
 }
 
 func (a *LoginController) Authenticate(w http.ResponseWriter, r *http.Request) {
+
+	jwtSecretKey := "jshbdgh54gs9jdbx543GnhY67"
+
 	var user models.User
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
@@ -23,14 +26,20 @@ func (a *LoginController) Authenticate(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email":    user.Email,
-		"password": user.Password,
-	})
-	tokenString, error := token.SignedString([]byte("jshbdgh54gs9jdbx543GnhY67"))
-	if error != nil {
-		fmt.Println(error)
+	errFindUser := user.FindOne(a.DB)
+	if errFindUser != nil {
+		result := map[string]interface{}{"status": "LOGIN_ERROR"}
+		respondWithJSON(w, http.StatusCreated, result)
+	} else {
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"email":    user.Email,
+			"password": user.Password,
+		})
+		tokenString, error := token.SignedString([]byte(jwtSecretKey))
+		if error != nil {
+			fmt.Println(error)
+		}
+		result := map[string]interface{}{"token": tokenString}
+		respondWithJSON(w, http.StatusCreated, result)
 	}
-	result := map[string]interface{}{"token": tokenString}
-	respondWithJSON(w, http.StatusCreated, result)
 }
