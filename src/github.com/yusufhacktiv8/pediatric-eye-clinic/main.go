@@ -9,9 +9,9 @@ func main() {
 		// os.Getenv("APP_DB_USERNAME"),
 		// os.Getenv("APP_DB_PASSWORD"),
 		// os.Getenv("APP_DB_NAME"))
-		"myyusuf",
-		"",
-		"pec")
+		"pecadmin",
+		"pecadmin123",
+		"pecadmin")
 
 	a.Run(":8080")
 }

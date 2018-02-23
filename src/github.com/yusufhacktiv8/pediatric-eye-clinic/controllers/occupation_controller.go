@@ -1,5 +1,6 @@
 package controllers
 
+/*
 import (
 	"database/sql"
 	"encoding/json"
@@ -127,3 +128,4 @@ func (a *OccupationController) DeleteOccupation(w http.ResponseWriter, r *http.R
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
+*/

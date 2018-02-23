@@ -1,5 +1,6 @@
 package controllers
 
+/*
 import (
 	"database/sql"
 	"encoding/json"
@@ -126,3 +127,4 @@ func (a *InsuranceController) DeleteInsurance(w http.ResponseWriter, r *http.Req
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
+*/

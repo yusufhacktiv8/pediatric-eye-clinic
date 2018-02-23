@@ -1,17 +1,18 @@
 package models
 
 import (
-	"database/sql"
-	"fmt"
+	"github.com/jinzhu/gorm"
 )
 
 // Role is a model for role
 type Role struct {
+	gorm.Model
 	ID   int    `json:"id"`
 	Code string `json:"code"`
 	Name string `json:"name"`
 }
 
+/*
 // FindRoles to find roles
 func FindRoles(db *sql.DB, start, count int, searchText string) ([]Role, error) {
 	rows, err := db.Query(
@@ -103,3 +104,4 @@ func (d *Role) Create(db *sql.DB) error {
 
 	return nil
 }
+*/

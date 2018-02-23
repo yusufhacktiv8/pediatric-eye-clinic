@@ -1,5 +1,6 @@
 package controllers
 
+/*
 import (
 	"database/sql"
 	"encoding/json"
@@ -28,6 +29,7 @@ func (a *LoginController) Authenticate(w http.ResponseWriter, r *http.Request) {
 
 	errFindUser := user.FindOne(a.DB)
 	if errFindUser != nil {
+		fmt.Printf("Err: " + errFindUser.Error())
 		result := map[string]interface{}{"status": "LOGIN_ERROR"}
 		respondWithJSON(w, http.StatusCreated, result)
 	} else {
@@ -43,3 +45,4 @@ func (a *LoginController) Authenticate(w http.ResponseWriter, r *http.Request) {
 		respondWithJSON(w, http.StatusCreated, result)
 	}
 }
+*/

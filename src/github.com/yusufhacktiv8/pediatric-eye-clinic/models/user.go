@@ -3,10 +3,13 @@ package models
 import (
 	"database/sql"
 	"fmt"
+
+	"github.com/jinzhu/gorm"
 )
 
 // User is a model for user
 type User struct {
+	gorm.Model
 	ID       int    `json:"id"`
 	Email    string `json:"email"`
 	Password string `json:"password"`

@@ -1,20 +1,45 @@
 package controllers
 
 import (
-	"database/sql"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
-	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 	"github.com/yusufhacktiv8/pediatric-eye-clinic/models"
 )
 
 // RoleController for role feature
 type RoleController struct {
-	DB *sql.DB
+	DB *gorm.DB
 }
 
+func respondWithError(w http.ResponseWriter, code int, message string) {
+	respondWithJSON(w, code, map[string]string{"error": message})
+}
+
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+	response, _ := json.Marshal(payload)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	w.Write(response)
+}
+
+// FindRoles find roles
+func (a *RoleController) FindRoles(w http.ResponseWriter, r *http.Request) {
+	// count, _ := strconv.Atoi(r.FormValue("count"))
+	// start, _ := strconv.Atoi(r.FormValue("start"))
+	// searchText := r.FormValue("searchText")
+
+	var roles []models.Role
+	a.DB.Find(&roles)
+
+	result := map[string]interface{}{"roles": roles, "count": 1}
+
+	respondWithJSON(w, http.StatusOK, result)
+}
+
+/*
 // CreateRole create role
 func (a *RoleController) CreateRole(w http.ResponseWriter, r *http.Request) {
 	var role models.Role
@@ -117,3 +142,4 @@ func (a *RoleController) DeleteRole(w http.ResponseWriter, r *http.Request) {
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
+*/

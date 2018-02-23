@@ -1,18 +1,19 @@
 package controllers
 
+/*
 import (
-	"database/sql"
 	"encoding/json"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 	"github.com/yusufhacktiv8/pediatric-eye-clinic/models"
 )
 
 // UserController for user feature
 type UserController struct {
-	DB *sql.DB
+	DB *gorm.DB
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
@@ -110,3 +111,4 @@ func (a *UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
+*/

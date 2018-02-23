@@ -1,5 +1,6 @@
 package controllers
 
+/*
 import (
 	"database/sql"
 	"encoding/json"
@@ -117,3 +118,4 @@ func (a *MedicalRecordController) DeleteMedicalRecord(w http.ResponseWriter, r *
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
+*/
