@@ -1,15 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
-	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/gorilla/context"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/lib/pq"
@@ -19,7 +15,7 @@ import (
 )
 
 type App struct {
-	Router *mux.Router
+	Router *gin.Engine
 	DB     *gorm.DB
 }
 
@@ -39,62 +35,29 @@ func (a *App) Initialize(user, password, dbname string) {
 
 	a.DB.AutoMigrate(&models.Role{})
 
-	a.Router = mux.NewRouter()
+	a.Router = gin.Default()
 	a.initializeRoutes()
 }
 
-func respondWithError(w http.ResponseWriter, code int, message string) {
-	respondWithJSON(w, code, map[string]string{"error": message})
-}
-
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	response, _ := json.Marshal(payload)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	w.Write(response)
-}
-
-func ValidateMiddleware(next http.HandlerFunc) http.HandlerFunc {
-
-	jwtSecretKey := "jshbdgh54gs9jdbx543GnhY67"
-
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		authorizationHeader := req.Header.Get("authorization")
-		if authorizationHeader != "" {
-			bearerToken := strings.Split(authorizationHeader, " ")
-			if len(bearerToken) == 2 {
-				token, error := jwt.Parse(bearerToken[1], func(token *jwt.Token) (interface{}, error) {
-					if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-						return nil, fmt.Errorf("There was an error")
-					}
-					return []byte(jwtSecretKey), nil
-				})
-				if error != nil {
-					respondWithError(w, http.StatusBadRequest, "Error in request")
-					return
-				}
-				if token.Valid {
-					context.Set(req, "decoded", token.Claims)
-					next(w, req)
-				} else {
-					respondWithError(w, http.StatusBadRequest, "Invalid authorization token")
-				}
-			}
-		} else {
-			respondWithError(w, http.StatusBadRequest, "An authorization header is required")
-		}
-	})
-}
-
 func (a *App) initializeRoutes() {
+	roleController := controllers.RoleController{DB: a.DB}
+
+	v1 := a.Router.Group("/api/roles")
+	{
+		v1.POST("/", roleController.CreateRole)
+		v1.GET("/", roleController.FindRoles)
+		// v1.GET("/:id", fetchSingleTodo)
+		v1.PUT("/:id", roleController.UpdateRole)
+		// v1.DELETE("/:id", deleteTodo)
+	}
+	a.Router.Run()
 	// loginController := controllers.LoginController{DB: a.DB}
 	// diseaseController := controllers.DiseaseController{DB: a.DB}
 	// patientController := controllers.PatientController{DB: a.DB}
 	// medicalRecordController := controllers.MedicalRecordController{DB: a.DB}
 	// occupationController := controllers.OccupationController{DB: a.DB}
 	// insuranceController := controllers.InsuranceController{DB: a.DB}
-	roleController := controllers.RoleController{DB: a.DB}
+
 	// userController := controllers.UserController{DB: a.DB}
 
 	// a.Router.HandleFunc("/authenticate", loginController.Authenticate).Methods("POST")
@@ -133,7 +96,7 @@ func (a *App) initializeRoutes() {
 	// a.Router.HandleFunc("/insurances/{code:\\w+}", insuranceController.DeleteInsurance).Methods("DELETE")
 
 	// a.Router.HandleFunc("/roles", roleController.CreateRole).Methods("POST")
-	a.Router.HandleFunc("/roles", roleController.FindRoles).Methods("GET")
+	// a.Router.HandleFunc("/roles", roleController.FindRoles).Methods("GET")
 	// a.Router.HandleFunc("/roles/{code:\\w+}", roleController.FindRole).Methods("GET")
 	// a.Router.HandleFunc("/roles/{code:\\w+}", roleController.UpdateRole).Methods("PUT")
 	// a.Router.HandleFunc("/roles/{code:\\w+}", roleController.DeleteRole).Methods("DELETE")

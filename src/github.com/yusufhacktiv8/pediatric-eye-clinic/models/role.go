@@ -7,7 +7,6 @@ import (
 // Role is a model for role
 type Role struct {
 	gorm.Model
-	ID   int    `json:"id"`
 	Code string `json:"code"`
 	Name string `json:"name"`
 }

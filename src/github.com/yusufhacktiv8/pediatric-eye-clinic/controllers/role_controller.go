@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	"encoding/json"
+	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/yusufhacktiv8/pediatric-eye-clinic/models"
 )
@@ -13,20 +14,8 @@ type RoleController struct {
 	DB *gorm.DB
 }
 
-func respondWithError(w http.ResponseWriter, code int, message string) {
-	respondWithJSON(w, code, map[string]string{"error": message})
-}
-
-func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-	response, _ := json.Marshal(payload)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	w.Write(response)
-}
-
 // FindRoles find roles
-func (a *RoleController) FindRoles(w http.ResponseWriter, r *http.Request) {
+func (a *RoleController) FindRoles(c *gin.Context) {
 	// count, _ := strconv.Atoi(r.FormValue("count"))
 	// start, _ := strconv.Atoi(r.FormValue("start"))
 	// searchText := r.FormValue("searchText")
@@ -34,9 +23,42 @@ func (a *RoleController) FindRoles(w http.ResponseWriter, r *http.Request) {
 	var roles []models.Role
 	a.DB.Find(&roles)
 
-	result := map[string]interface{}{"roles": roles, "count": 1}
+	if len(roles) <= 0 {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No role found!"})
+		return
+	}
 
-	respondWithJSON(w, http.StatusOK, result)
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": roles})
+
+}
+
+// CreateRole create role domain model
+func (a *RoleController) CreateRole(c *gin.Context) {
+	var role models.Role
+	c.BindJSON(&role)
+	if err := a.DB.Create(&role).Error; err != nil {
+		c.AbortWithStatus(400)
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"resourceId": role.ID})
+}
+
+func (a *RoleController) UpdateRole(c *gin.Context) {
+	id := c.Params.ByName("id")
+	var role models.Role
+
+	if err := a.DB.Where("id = ?", id).First(&role).Error; err != nil {
+		c.AbortWithStatus(404)
+		fmt.Println(err)
+		return
+	}
+	c.BindJSON(&role)
+	a.DB.Save(&role)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"status":     http.StatusCreated,
+		"resourceId": role.ID})
 }
 
 /*
