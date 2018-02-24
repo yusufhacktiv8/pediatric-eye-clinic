@@ -13,5 +13,7 @@ func main() {
 		"pecadmin123",
 		"pecadmin")
 
+	defer a.DB.Close()
+
 	a.Router.Run(":8080")
 }
