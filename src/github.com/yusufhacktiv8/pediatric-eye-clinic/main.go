@@ -13,21 +13,5 @@ func main() {
 		"pecadmin123",
 		"pecadmin")
 
-	a.Run(":8080")
+	a.Router.Run(":8080")
 }
-
-// package main
-//
-// import (
-// 	"fmt"
-// 	"net/http"
-// )
-//
-// func main() {
-// 	http.HandleFunc("/", handler)
-// 	http.ListenAndServe(":8080", nil)
-// }
-//
-// func handler(w http.ResponseWriter, r *http.Request) {
-// 	fmt.Fprintf(w, "PEC")
-// }
