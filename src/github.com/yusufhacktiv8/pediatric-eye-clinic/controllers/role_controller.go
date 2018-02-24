@@ -56,9 +56,19 @@ func (a *RoleController) UpdateRole(c *gin.Context) {
 	c.BindJSON(&role)
 	a.DB.Save(&role)
 
-	c.JSON(http.StatusCreated, gin.H{
-		"status":     http.StatusCreated,
-		"resourceId": role.ID})
+	c.JSON(http.StatusOK, gin.H{"resourceId": role.ID})
+}
+
+func (a *RoleController) DeleteRole(c *gin.Context) {
+	id := c.Params.ByName("id")
+	var role models.Role
+	if err := a.DB.Where("id = ?", id).Delete(&role).Error; err != nil {
+		c.AbortWithStatus(404)
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"resourceId": role.ID})
 }
 
 /*

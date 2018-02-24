@@ -48,7 +48,7 @@ func (a *App) initializeRoutes() {
 		v1.GET("/", roleController.FindRoles)
 		// v1.GET("/:id", fetchSingleTodo)
 		v1.PUT("/:id", roleController.UpdateRole)
-		// v1.DELETE("/:id", deleteTodo)
+		v1.DELETE("/:id", roleController.DeleteRole)
 	}
 	a.Router.Run()
 	// loginController := controllers.LoginController{DB: a.DB}
