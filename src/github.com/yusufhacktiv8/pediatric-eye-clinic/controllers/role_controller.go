@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -16,17 +17,31 @@ type RoleController struct {
 
 // FindRoles find roles
 func (a *RoleController) FindRoles(c *gin.Context) {
-	// count, _ := strconv.Atoi(r.FormValue("count"))
-	// start, _ := strconv.Atoi(r.FormValue("start"))
-	// searchText := r.FormValue("searchText")
-
-	var roles []models.Role
-	a.DB.Find(&roles)
-
-	if len(roles) <= 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No role found!"})
+	countStr, ok := c.GetQuery("count")
+	if !ok {
+		c.AbortWithStatus(400)
 		return
 	}
+
+	startStr, ok := c.GetQuery("start")
+	if !ok {
+		c.AbortWithStatus(400)
+		return
+	}
+
+	count, _ := strconv.Atoi(countStr)
+	start, _ := strconv.Atoi(startStr)
+	searchText, _ := c.GetQuery("searchText")
+
+	if count > 10 || count < 1 {
+		count = 10
+	}
+	if start < 0 {
+		start = 0
+	}
+
+	var roles []models.Role
+	a.DB.Where("code LIKE ?", "%"+searchText+"%").Or("name LIKE ?", "%"+searchText+"%").Offset(start).Limit(count).Find(&roles)
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": roles})
 
@@ -62,7 +77,7 @@ func (a *RoleController) UpdateRole(c *gin.Context) {
 func (a *RoleController) DeleteRole(c *gin.Context) {
 	id := c.Params.ByName("id")
 	var role models.Role
-	if err := a.DB.Where("id = ?", id).Delete(&role).Error; err != nil {
+	if err := a.DB.Where("id = ?", id).First(&role).Delete(&role).Error; err != nil {
 		c.AbortWithStatus(404)
 		fmt.Println(err)
 		return
