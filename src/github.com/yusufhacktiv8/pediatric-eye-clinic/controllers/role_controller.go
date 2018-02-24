@@ -36,13 +36,6 @@ func (a *RoleController) FindRoles(c *gin.Context) {
 	searchText, _ := c.GetQuery("searchText")
 	searchText = strings.ToLower(searchText)
 
-	if count > 10 || count < 1 {
-		count = 10
-	}
-	if start < 0 {
-		start = 0
-	}
-
 	var roles []models.Role
 	a.DB.Where("lower(code) LIKE ?", "%"+searchText+"%").Or("lower(name) LIKE ?", "%"+searchText+"%").Offset(start).Limit(count).Find(&roles)
 
