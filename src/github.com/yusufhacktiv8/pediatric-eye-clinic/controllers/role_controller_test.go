@@ -11,10 +11,8 @@ import (
 )
 
 func TestFindRoles(t *testing.T) {
-	a := AppTest{}
-	a.Initialize("", "", "")
-
-	r := gofight.New()
+	a := GetAppTest()
+	r := a.GoFight
 
 	a.DB.Unscoped().Delete(&models.Role{})
 

@@ -43,7 +43,7 @@ func (a *RoleController) FindRoles(c *gin.Context) {
 
 }
 
-// CreateRole create role domain model
+// CreateRole create Role with code and name as parameter (JSON format)
 func (a *RoleController) CreateRole(c *gin.Context) {
 	var role models.Role
 	c.BindJSON(&role)

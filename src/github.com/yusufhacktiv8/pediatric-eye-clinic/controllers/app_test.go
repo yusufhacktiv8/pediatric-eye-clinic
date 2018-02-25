@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/appleboy/gofight"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -12,8 +13,9 @@ import (
 )
 
 type AppTest struct {
-	Router *gin.Engine
-	DB     *gorm.DB
+	Router  *gin.Engine
+	DB      *gorm.DB
+	GoFight *gofight.RequestConfig
 }
 
 func (a *AppTest) Initialize(user, password, dbname string) {
@@ -22,6 +24,7 @@ func (a *AppTest) Initialize(user, password, dbname string) {
 
 	var err error
 	a.DB, err = gorm.Open("postgres", "host=localhost port=5432 user=myyusuf dbname=pec_test sslmode=disable")
+	// defer a.DB.Close()
 
 	if err != nil {
 		log.Fatal(err)
