@@ -47,14 +47,21 @@ func (a *RoleController) FindRoles(c *gin.Context) {
 func (a *RoleController) CreateRole(c *gin.Context) {
 	var role models.Role
 	c.BindJSON(&role)
+
+	if (len(strings.TrimSpace(role.Code)) == 0) || (len(strings.TrimSpace(role.Name)) == 0) {
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Code or Name is empty"})
+		return
+	}
+
 	if err := a.DB.Create(&role).Error; err != nil {
-		c.AbortWithStatus(400)
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Code is not unique"})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"resourceId": role.ID})
 }
 
+// UpdateRole chang role code or name using id as path parameter
 func (a *RoleController) UpdateRole(c *gin.Context) {
 	id := c.Params.ByName("id")
 	var role models.Role

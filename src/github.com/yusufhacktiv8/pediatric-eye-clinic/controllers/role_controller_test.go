@@ -12,17 +12,17 @@ import (
 
 func TestFindRoles(t *testing.T) {
 	a := GetAppTest()
-	r := a.GoFight
+	gf := a.GoFight
 
 	a.DB.Unscoped().Delete(&models.Role{})
 
-	r.GET("/api/roles/").
+	gf.GET("/api/roles/").
 		Run(a.Router, func(r gofight.HTTPResponse, rq gofight.HTTPRequest) {
 			assert.Equal(t, "{\"message\":\"No count parameter\",\"status\":400}", r.Body.String())
 			assert.Equal(t, http.StatusBadRequest, r.Code)
 		})
 
-	r.GET("/api/roles/?count=10").
+	gf.GET("/api/roles/?count=10").
 		Run(a.Router, func(r gofight.HTTPResponse, rq gofight.HTTPRequest) {
 			assert.Equal(t, "{\"message\":\"No start parameter\",\"status\":400}", r.Body.String())
 			assert.Equal(t, http.StatusBadRequest, r.Code)
@@ -31,18 +31,74 @@ func TestFindRoles(t *testing.T) {
 	newRole := models.Role{Code: "ADMIN", Name: "Admin"}
 	a.DB.Create(&newRole)
 
-	r.GET("/api/roles/?count=10&start=0").
+	gf.GET("/api/roles/?count=10&start=0").
 		Run(a.Router, func(r gofight.HTTPResponse, rq gofight.HTTPRequest) {
 
-			var objmap map[string]*json.RawMessage
-			json.Unmarshal([]byte(r.Body.String()), &objmap)
+			var objMap map[string]*json.RawMessage
+			json.Unmarshal([]byte(r.Body.String()), &objMap)
 
 			var roles []models.Role
-			json.Unmarshal(*objmap["data"], &roles)
+			json.Unmarshal(*objMap["data"], &roles)
 
 			role := roles[0]
 
 			assert.Equal(t, "ADMIN", role.Code)
 			assert.Equal(t, http.StatusOK, r.Code)
+		})
+}
+
+func TestCreateRole(t *testing.T) {
+	a := GetAppTest()
+	gf := a.GoFight
+
+	a.DB.Unscoped().Delete(&models.Role{})
+
+	gf.POST("/api/roles/").
+		Run(a.Router, func(r gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			assert.Equal(t, http.StatusBadRequest, r.Code)
+
+			var objMap map[string]*json.RawMessage
+			json.Unmarshal([]byte(r.Body.String()), &objMap)
+
+			var message string
+			json.Unmarshal(*objMap["message"], &message)
+
+			assert.Equal(t, "Code or Name is empty", message)
+
+		})
+
+	gf.POST("/api/roles/").
+		SetJSON(gofight.D{
+			"code": "ADMIN",
+			"name": "Admin",
+		}).
+		Run(a.Router, func(r gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			assert.Equal(t, http.StatusCreated, r.Code)
+
+			var objMap map[string]*json.RawMessage
+			json.Unmarshal([]byte(r.Body.String()), &objMap)
+
+			if http.StatusCreated == r.Code {
+				var roleID uint
+				json.Unmarshal(*objMap["resourceId"], &roleID)
+				assert.NotEqual(t, 0, roleID)
+			}
+		})
+
+	gf.POST("/api/roles/").
+		SetJSON(gofight.D{
+			"code": "ADMIN",
+			"name": "Admin",
+		}).
+		Run(a.Router, func(r gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			assert.Equal(t, http.StatusBadRequest, r.Code)
+
+			var objMap map[string]*json.RawMessage
+			json.Unmarshal([]byte(r.Body.String()), &objMap)
+
+			var message string
+			json.Unmarshal(*objMap["message"], &message)
+
+			assert.Equal(t, "Code is not unique", message)
 		})
 }
