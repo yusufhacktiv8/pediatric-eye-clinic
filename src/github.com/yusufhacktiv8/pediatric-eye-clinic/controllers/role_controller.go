@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -61,17 +60,21 @@ func (a *RoleController) CreateRole(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"resourceId": role.ID})
 }
 
-// UpdateRole chang role code or name using id as path parameter
+// UpdateRole change role code or name using id as path parameter
 func (a *RoleController) UpdateRole(c *gin.Context) {
 	id := c.Params.ByName("id")
 	var role models.Role
 
 	if err := a.DB.Where("id = ?", id).First(&role).Error; err != nil {
-		c.AbortWithStatus(404)
-		fmt.Println(err)
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Role not found"})
 		return
 	}
+
 	c.BindJSON(&role)
+	if (len(strings.TrimSpace(role.Code)) == 0) || (len(strings.TrimSpace(role.Name)) == 0) {
+		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Code or Name is empty"})
+		return
+	}
 	a.DB.Save(&role)
 
 	c.JSON(http.StatusOK, gin.H{"resourceId": role.ID})
@@ -81,8 +84,7 @@ func (a *RoleController) DeleteRole(c *gin.Context) {
 	id := c.Params.ByName("id")
 	var role models.Role
 	if err := a.DB.Where("id = ?", id).First(&role).Delete(&role).Error; err != nil {
-		c.AbortWithStatus(404)
-		fmt.Println(err)
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Role not found"})
 		return
 	}
 

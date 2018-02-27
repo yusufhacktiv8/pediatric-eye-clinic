@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/appleboy/gofight"
@@ -100,5 +101,68 @@ func TestCreateRole(t *testing.T) {
 			json.Unmarshal(*objMap["message"], &message)
 
 			assert.Equal(t, "Code is not unique", message)
+		})
+}
+
+func TestUpdateRole(t *testing.T) {
+	a := GetAppTest()
+	gf := a.GoFight
+
+	a.DB.Unscoped().Delete(&models.Role{})
+
+	newRole := models.Role{Code: "ADMIN", Name: "Admin"}
+	a.DB.Create(&newRole)
+
+	gf.PUT("/api/roles/0").
+		SetJSON(gofight.D{}).
+		Run(a.Router, func(r gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			assert.Equal(t, http.StatusNotFound, r.Code)
+
+			if http.StatusNotFound == r.Code {
+				var objMap map[string]*json.RawMessage
+				json.Unmarshal([]byte(r.Body.String()), &objMap)
+
+				var message string
+				json.Unmarshal(*objMap["message"], &message)
+
+				assert.Equal(t, "Role not found", message)
+			}
+		})
+
+	gf.PUT("/api/roles/"+strconv.Itoa(int(newRole.ID))).
+		SetJSON(gofight.D{
+			"code": "",
+			"name": "",
+		}).
+		Run(a.Router, func(r gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			assert.Equal(t, http.StatusBadRequest, r.Code)
+
+			if http.StatusBadRequest == r.Code {
+				var objMap map[string]*json.RawMessage
+				json.Unmarshal([]byte(r.Body.String()), &objMap)
+
+				var message string
+				json.Unmarshal(*objMap["message"], &message)
+
+				assert.Equal(t, "Code or Name is empty", message)
+			}
+		})
+
+	gf.PUT("/api/roles/"+strconv.Itoa(int(newRole.ID))).
+		SetJSON(gofight.D{
+			"code": "USER",
+			"name": "User",
+		}).
+		Run(a.Router, func(r gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			assert.Equal(t, http.StatusOK, r.Code)
+
+			if http.StatusOK == r.Code {
+				var role models.Role
+				a.DB.First(&role)
+
+				assert.Equal(t, "USER", role.Code)
+				assert.Equal(t, "User", role.Name)
+
+			}
 		})
 }
