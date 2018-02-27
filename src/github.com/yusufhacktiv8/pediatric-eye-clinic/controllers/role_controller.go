@@ -20,13 +20,13 @@ type RoleController struct {
 func (a *RoleController) FindRoles(c *gin.Context) {
 	countStr, ok := c.GetQuery("count")
 	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "No count parameter"})
+		SendBadRequest(c, "No count parameter")
 		return
 	}
 
 	startStr, ok := c.GetQuery("start")
 	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "No start parameter"})
+		SendBadRequest(c, "No start parameter")
 		return
 	}
 
@@ -48,12 +48,12 @@ func (a *RoleController) CreateRole(c *gin.Context) {
 	c.BindJSON(&role)
 
 	if (len(strings.TrimSpace(role.Code)) == 0) || (len(strings.TrimSpace(role.Name)) == 0) {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Code or Name is empty"})
+		SendBadRequest(c, "Code or Name is empty")
 		return
 	}
 
 	if err := a.DB.Create(&role).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Code is not unique"})
+		SendBadRequest(c, "Code is not unique")
 		return
 	}
 
@@ -66,13 +66,13 @@ func (a *RoleController) UpdateRole(c *gin.Context) {
 	var role models.Role
 
 	if err := a.DB.Where("id = ?", id).First(&role).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Role not found"})
+		SendNotFound(c, "Role not found")
 		return
 	}
 
 	c.BindJSON(&role)
 	if (len(strings.TrimSpace(role.Code)) == 0) || (len(strings.TrimSpace(role.Name)) == 0) {
-		c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Code or Name is empty"})
+		SendBadRequest(c, "Code or Name is empty")
 		return
 	}
 	a.DB.Save(&role)
