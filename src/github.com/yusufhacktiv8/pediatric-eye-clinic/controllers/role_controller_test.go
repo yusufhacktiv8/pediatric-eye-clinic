@@ -166,3 +166,34 @@ func TestUpdateRole(t *testing.T) {
 			}
 		})
 }
+
+func TestDeleteRole(t *testing.T) {
+	a := GetAppTest()
+	gf := a.GoFight
+
+	a.DB.Unscoped().Delete(&models.Role{})
+
+	newRole := models.Role{Code: "ADMIN", Name: "Admin"}
+	a.DB.Create(&newRole)
+
+	gf.DELETE("/api/roles/0").
+		SetJSON(gofight.D{}).
+		Run(a.Router, func(r gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			assert.Equal(t, http.StatusNotFound, r.Code)
+
+			if http.StatusNotFound == r.Code {
+				var objMap map[string]*json.RawMessage
+				json.Unmarshal([]byte(r.Body.String()), &objMap)
+
+				var message string
+				json.Unmarshal(*objMap["message"], &message)
+
+				assert.Equal(t, "Role not found", message)
+			}
+		})
+
+	gf.DELETE("/api/roles/"+strconv.Itoa(int(newRole.ID))).
+		Run(a.Router, func(r gofight.HTTPResponse, rq gofight.HTTPRequest) {
+			assert.Equal(t, http.StatusOK, r.Code)
+		})
+}

@@ -80,11 +80,12 @@ func (a *RoleController) UpdateRole(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"resourceId": role.ID})
 }
 
+// DeleteRole delete role using id as path parameter
 func (a *RoleController) DeleteRole(c *gin.Context) {
 	id := c.Params.ByName("id")
 	var role models.Role
 	if err := a.DB.Where("id = ?", id).First(&role).Delete(&role).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Role not found"})
+		SendNotFound(c, "Role not found")
 		return
 	}
 
