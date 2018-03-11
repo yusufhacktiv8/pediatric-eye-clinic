@@ -9,6 +9,7 @@ services:
     environment:
       - POSTGRES_USER=docker
       - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=pec
       - PGDATA=/pgdata
 
   api:
@@ -17,18 +18,19 @@ services:
       args:
         app_env: ${APP_ENV}
     volumes:
-      - ./api:/go/src/github.com/user/GoDoRP/api
+      - ./api:/go/src/github.com/yusufhacktiv8/pediatric-eye-clinic
+
     ports:
-      - "5000:8080"
+      - "8080:8080"
     links:
       - db
 
-  frontend:
+  admin:
     build:
-      context: ./frontend
+      context: ./admin
       args:
         app_env: ${APP_ENV}
     volumes:
-      - ./frontend/src:/frontend/src 
+      - ./admin/src:/admin/src 
     ports:
       - "3000:3000"
