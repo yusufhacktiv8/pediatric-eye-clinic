@@ -1,13 +1,2 @@
 .DS_Store
-node_modules
-public/javascripts/bundle.js
-npm-debug.log
 
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
-
-pkg
-bin
-src/github.com/yusufhacktiv8/pediatric-eye-clinic/pediatric-eye-clinic
