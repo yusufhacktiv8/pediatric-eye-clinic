@@ -13,6 +13,7 @@ WORKDIR /go/src/github.com/yusufhacktiv8/pediatric-eye-clinic
 RUN echo $PATH
 
 RUN go get -d -v ./...
+RUN go get -d -v github.com/appleboy/gofight
 RUN go install -v ./...
 
 RUN go build -o pediatric-eye-clinic .
@@ -22,7 +23,10 @@ RUN go build -o pediatric-eye-clinic .
 CMD if [ ${APP_ENV} = production ]; \
 	then \
 	pediatric-eye-clinic; \
-	else \
+	elif [ ${APP_ENV} = test ]; \
+        then \
+        go test -v ./...; \
+        else \
 	go get github.com/pilu/fresh && \
 	fresh; \
 	fi

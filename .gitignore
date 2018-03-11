@@ -1,2 +1,4 @@
 .DS_Store
 db/pgdata
+api/controllers/.app_test.go.swp
+api/tmp

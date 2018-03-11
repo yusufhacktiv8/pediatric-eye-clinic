@@ -10,6 +10,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/lib/pq"
 	"github.com/yusufhacktiv8/pediatric-eye-clinic/models"
+	"time"
 )
 
 type AppTest struct {
@@ -23,9 +24,16 @@ func (a *AppTest) Initialize(user, password, dbname string) {
 	// 	fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", user, password, dbname)
 
 	var err error
-	a.DB, err = gorm.Open("postgres", "host=localhost port=5432 user=myyusuf dbname=pec_test sslmode=disable")
-	// defer a.DB.Close()
-
+	
+	connectionParams := "user=docker password=docker dbname=pec sslmode=disable host=db"
+	for i := 0; i < 5; i++ {
+		a.DB, err = gorm.Open("postgres", connectionParams) // gorm checks Ping on Open
+		if err == nil {
+			break
+		}
+		time.Sleep(5 * time.Second)
+	}
+	
 	if err != nil {
 		log.Fatal(err)
 		fmt.Printf("Err: " + err.Error())
