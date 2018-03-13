@@ -1,4 +1,5 @@
 .DS_Store
+node_modules/
 db/pgdata
 api/controllers/.app_test.go.swp
 api/tmp
