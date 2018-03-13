@@ -12,11 +12,9 @@ WORKDIR /go/src/github.com/yusufhacktiv8/pediatric-eye-clinic
 
 RUN echo $PATH
 
-RUN go get -d -v ./...
-RUN go get -d -v github.com/appleboy/gofight
-RUN go install -v ./...
+RUN go get ./...
 
-RUN go build -o pediatric-eye-clinic .
+RUN go build
 
 # if dev setting will use pilu/fresh for code reloading via docker-compose volume sharing with local machine
 # if production setting will build binary
@@ -30,5 +28,5 @@ CMD if [ ${APP_ENV} = production ]; \
 	go get github.com/pilu/fresh && \
 	fresh; \
 	fi
-	
+
 EXPOSE 8080
