@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"log"
 
+	"time"
+
+	"github.com/yusufhacktiv8/pediatric-eye-clinic/controllers"
+	"github.com/yusufhacktiv8/pediatric-eye-clinic/models"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/lib/pq"
-	"github.com/yusufhacktiv8/pediatric-eye-clinic/controllers"
-	"github.com/yusufhacktiv8/pediatric-eye-clinic/models"
-	"time"
 )
 
 type App struct {
@@ -42,6 +45,9 @@ func (a *App) Initialize(user, password, dbname string) {
 	a.DB.AutoMigrate(&models.Role{})
 
 	a.Router = gin.Default()
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	a.Router.Use(cors.New(config))
 	a.initializeRoutes()
 }
 
